@@ -1,19 +1,19 @@
-# SQL Data Warehouse Project
+# SQL Data Warehouse & Analytics Project
 
-
-This project demonstrates a comprehensive data warehousing solution built with SQL Server, implementing the modern Medallion Architecture pattern. It showcases end-to-end data engineering practices from raw data ingestion to business-ready analytics layers.
+This comprehensive project demonstrates an end-to-end data engineering and analytics solution, showcasing modern data warehouse architecture, advanced ETL processes, and sophisticated SQL-based analytics. Built with SQL Server, it implements the Medallion Architecture pattern and provides extensive analytical capabilities for data-driven decision making.
 
 ---
 
 ## Project Overview
 
-This project implements a complete data warehousing solution that consolidates data from multiple source systems (CRM and ERP) into a unified, analytics-ready data warehouse. The solution follows industry best practices and demonstrates proficiency in:
+This project implements a complete data warehousing and analytics solution that consolidates data from multiple source systems (CRM and ERP) into a unified, analytics-ready data warehouse. The solution follows industry best practices and demonstrates proficiency in:
 
 - **Data Architecture Design** using Medallion Architecture
 - **ETL Pipeline Development** with SQL Server
 - **Data Quality Management** and validation
 - **Dimensional Modeling** with Star Schema
-- **Business Intelligence Preparation**
+- **Advanced SQL Analytics** and Business Intelligence
+- **Comprehensive Data Reporting** and insights
 
 ---
 
@@ -70,6 +70,57 @@ The project implements comprehensive ETL techniques:
 
 ---
 
+## Analytics Capabilities
+
+![Analytics Roadmap](docs/Analytics_%20Roadmap.png)
+
+The project includes a comprehensive analytics framework covering:
+
+### **Exploratory Data Analysis (EDA)**
+- **Database Exploration**: Schema and table structure analysis
+- **Dimensions Exploration**: Unique values and data distribution
+- **Date Range Exploration**: Temporal data boundaries and patterns
+- **Measures Exploration**: Key business metrics and KPIs
+
+### **Advanced Analytics Types**
+
+#### **1. Magnitude Analysis**
+- Customer distribution by geography and demographics
+- Product distribution by categories
+- Revenue analysis by various dimensions
+
+#### **2. Ranking Analysis**
+- Top/bottom performing products
+- Customer ranking by revenue
+- Performance comparisons using window functions
+
+#### **3. Change Over Time Analysis**
+- Monthly and yearly sales trends
+- Growth pattern identification
+- Seasonal analysis using date functions
+
+#### **4. Cumulative Analysis**
+- Running totals and moving averages
+- Growth trajectory analysis
+- Performance accumulation over time
+
+#### **5. Performance Analysis**
+- Year-over-year comparisons
+- Month-over-month growth
+- Trend analysis with LAG functions
+
+#### **6. Data Segmentation**
+- Customer segmentation (VIP, Regular, New)
+- Product categorization by price ranges
+- Behavioral pattern analysis
+
+#### **7. Part-to-Whole Analysis**
+- Market share calculations
+- Contribution analysis by categories
+- Percentage distributions
+
+---
+
 ## Project Structure
 
 ```
@@ -87,14 +138,29 @@ SQL_DataWarehouse/
 │
 ├── scripts/                            # SQL implementation scripts
 │   ├── init_database.sql               # Database and schema creation
-│   ├── bronze/                         # Bronze layer implementation
-│   │   ├── ddl_bronze.sql
-│   │   └── proc_load_bronze.sql
-│   ├── silver/                         # Silver layer implementation
-│   │   ├── ddl_silver.sql
-│   │   └── proc_load_silver.sql
-│   └── gold/                           # Gold layer implementation
-│       └── ddl_gold.sql
+│   ├── data_warehouse/                 # Data warehouse ETL scripts
+│   │   ├── bronze/                     # Bronze layer implementation
+│   │   │   ├── ddl_bronze.sql
+│   │   │   └── proc_load_bronze.sql
+│   │   ├── silver/                     # Silver layer implementation
+│   │   │   ├── ddl_silver.sql
+│   │   │   └── proc_load_silver.sql
+│   │   └── gold/                       # Gold layer implementation
+│   │       └── ddl_gold.sql
+│   └── data_analytics/                 # Analytics and reporting scripts
+│       ├── 01_database_exploration.sql
+│       ├── 02_dimensions_exploration.sql
+│       ├── 03_date_range_exploration.sql
+│       ├── 04_measures_exploration.sql
+│       ├── 05_magnitude_analysis.sql
+│       ├── 06_ranking_analysis.sql
+│       ├── 07_change_over_time_analysis.sql
+│       ├── 08_cumulative_analysis.sql
+│       ├── 09_performance_analysis.sql
+│       ├── 10_data_segmentation.sql
+│       ├── 11_part_to_whole_analysis.sql
+│       ├── 12_report_customers.sql
+│       └── 13_report_products.sql
 │
 ├── tests/                              # Data quality and validation
 │   ├── quality_checks_silver.sql
@@ -131,13 +197,6 @@ CASE
     ELSE 'n/a'
 END AS gender
 
--- Marital Status Standardization
-CASE 
-    WHEN UPPER(TRIM(cst_marital_status)) = 'S' THEN 'Single'
-    WHEN UPPER(TRIM(cst_marital_status)) = 'M' THEN 'Married'
-    ELSE 'n/a'
-END AS marital_status
-
 -- Country Code Normalization
 CASE
     WHEN TRIM(cntry) = 'DE' THEN 'Germany'
@@ -147,39 +206,7 @@ CASE
 END AS country
 ```
 
-### Data Type Conversions & Validations
-
-#### **Advanced Date Transformations**
-```sql
--- Integer to Date Conversion with Validation
-CASE 
-    WHEN sls_order_dt = 0 OR LEN(sls_order_dt) != 8 THEN NULL
-    ELSE CAST(CAST(sls_order_dt AS VARCHAR) AS DATE)
-END AS order_date
-
--- Future Date Validation
-CASE
-    WHEN bdate > GETDATE() THEN NULL
-    ELSE bdate
-END AS birthdate
-```
-
-### Data Integration & Enrichment
-
-#### **System Integration Techniques**
-```sql
--- Customer ID Normalization Across Systems
-CASE
-    WHEN cid LIKE 'NAS%' THEN SUBSTRING(cid, 4, LEN(cid))
-    ELSE cid
-END AS customer_id
-
--- Product Category Extraction from Composite Keys
-REPLACE(SUBSTRING(prd_key, 1, 5), '-', '_') AS category_id,
-SUBSTRING(prd_key, 7, LEN(prd_key)) AS product_key
-```
-
-### Transformations acc. to Business Logic
+### Advanced Business Logic
 
 #### **Sales Calculation Validation & Correction**
 ```sql
@@ -198,14 +225,6 @@ CAST(
 ) AS product_end_date
 ```
 
-### Data Quality Techniques Implemented
-
-- **Deduplication**: ROW_NUMBER() with PARTITION BY for latest records
-- **Hidden Character Removal**: CHAR(13), CHAR(10), CHAR(160) cleaning
-- **Null Handling**: ISNULL, COALESCE, NULLIF functions
-- **Data Validation**: Range checks, format validation, referential integrity
-- **Text Standardization**: TRIM, UPPER, consistent casing
-
 ---
 
 ## Dimensional Modeling & Star Schema
@@ -221,18 +240,8 @@ The Gold layer implements a sophisticated **Star Schema** optimized for analytic
 - **Fact Table Optimization**: Foreign keys to dimensions with additive measures
 - **Denormalization**: Flattened dimensions for query performance
 
-### Dimensional Implementation
+### Multi-Source Data Integration
 
-#### **Surrogate Key Generation**
-```sql
--- Customer Dimension Surrogate Key
-ROW_NUMBER() OVER (ORDER BY cst_id) AS customer_key
-
--- Product Dimension Surrogate Key  
-ROW_NUMBER() OVER (ORDER BY prd_start_dt, prd_key) AS product_key
-```
-
-#### **Multi-Source Data Integration**
 ```sql
 -- Customer Dimension: Merging CRM + ERP Data
 SELECT
@@ -249,37 +258,44 @@ LEFT JOIN silver.erp_cust_az12 ca ON ci.cst_key = ca.cid
 LEFT JOIN silver.erp_loc_a101 la ON ci.cst_key = la.cid
 ```
 
-#### **Product Hierarchy Design**
+---
+
+## Advanced Analytics Examples
+
+### **Customer Segmentation Analysis**
 ```sql
--- Product Dimension with Category Hierarchy
-SELECT
-    pn.prd_id AS product_id,
-    pn.prd_nm AS product_name,
-    pn.cat_id AS category_id,
-    pc.cat AS category,        -- Level 1
-    pc.subcat AS subcategory,  -- Level 2  
-    pn.prd_line AS product_line -- Level 3
-FROM silver.crm_prd_info pn
-LEFT JOIN silver.erp_px_cat_g1v2 pc ON pn.cat_id = pc.id
+-- Segment customers into VIP, Regular, and New categories
+WITH customer_spending AS (
+    SELECT
+        c.customer_key,
+        SUM(f.sales_amount) AS total_spending,
+        DATEDIFF(month, MIN(order_date), MAX(order_date)) AS lifespan
+    FROM gold.fact_sales f
+    LEFT JOIN gold.dim_customers c ON f.customer_key = c.customer_key
+    GROUP BY c.customer_key
+)
+SELECT 
+    CASE 
+        WHEN lifespan >= 12 AND total_spending > 5000 THEN 'VIP'
+        WHEN lifespan >= 12 AND total_spending <= 5000 THEN 'Regular'
+        ELSE 'New'
+    END AS customer_segment,
+    COUNT(customer_key) AS total_customers
+FROM customer_spending
+GROUP BY customer_segment;
 ```
 
-### Fact Table Design
-
-**Grain Definition**: One row per sales order line item
-- **Measures**: Sales amount, quantity, unit price (all additive)
-- **Dimensions**: Customer, Product, Time (implicit through dates)
-
+### **Year-over-Year Performance Analysis**
 ```sql
--- Fact-Dimension Relationships
+-- Compare product performance year-over-year
 SELECT
-    sd.sls_ord_num AS order_number,
-    pr.product_key,   -- FK to dim_products
-    cu.customer_key,  -- FK to dim_customers
-    sd.sls_sales AS sales_amount,  -- Additive measure
-    sd.sls_quantity AS quantity    -- Additive measure
-FROM silver.crm_sales_details sd
-LEFT JOIN gold.dim_products pr ON sd.sls_prd_key = pr.product_number
-LEFT JOIN gold.dim_customers cu ON sd.sls_cust_id = cu.customer_id
+    product_name,
+    order_year,
+    current_sales,
+    LAG(current_sales) OVER (PARTITION BY product_name ORDER BY order_year) AS py_sales,
+    current_sales - LAG(current_sales) OVER (PARTITION BY product_name ORDER BY order_year) AS yoy_change
+FROM yearly_product_sales
+ORDER BY product_name, order_year;
 ```
 
 ---
@@ -352,9 +368,10 @@ LEFT JOIN gold.dim_customers cu ON sd.sls_cust_id = cu.customer_id
 ## Technologies & Skills Demonstrated
 
 ### **Technologies Used**
-- **Database**: SQL Server
+- **Database**: Microsoft SQL Server
 - **ETL**: T-SQL Stored Procedures
 - **Data Modeling**: Star Schema Design
+- **Analytics**: Advanced SQL Analytics
 - **Version Control**: Git
 - **Documentation**: Markdown
 - **Diagramming**: Draw.io
@@ -365,8 +382,29 @@ LEFT JOIN gold.dim_customers cu ON sd.sls_cust_id = cu.customer_id
 - **ETL Pipeline Development**: Extract, Transform, Load with error handling
 - **Dimensional Modeling**: Star schema design and optimization
 - **Data Quality Engineering**: Comprehensive validation and cleansing
+- **Business Intelligence**: Advanced analytics and reporting
 - **System Integration**: Multi-source data consolidation
 - **Performance Optimization**: Query optimization and indexing strategies
+
+---
+
+## Analytics Script Library
+
+The project includes 13 comprehensive analytics scripts covering:
+
+1. **Database Exploration** - Schema and metadata analysis
+2. **Dimensions Exploration** - Data distribution and unique values
+3. **Date Range Exploration** - Temporal boundaries and patterns
+4. **Measures Exploration** - Key business metrics and KPIs
+5. **Magnitude Analysis** - Quantitative analysis by dimensions
+6. **Ranking Analysis** - Top/bottom performers with window functions
+7. **Change Over Time** - Trends and temporal analysis
+8. **Cumulative Analysis** - Running totals and moving averages
+9. **Performance Analysis** - Year-over-year and comparative analysis
+10. **Data Segmentation** - Customer and product categorization
+11. **Part-to-Whole Analysis** - Market share and contribution analysis
+12. **Customer Reports** - Comprehensive customer analytics
+13. **Product Reports** - Detailed product performance analysis
 
 ---
 
@@ -377,15 +415,14 @@ LEFT JOIN gold.dim_customers cu ON sd.sls_cust_id = cu.customer_id
 - **Architecture Diagrams** - Visual representations of the solution
 
 ---
-
 ## Reference
 
 This project was developed following the comprehensive SQL bootcamp by **Data with Baraa**:
 
-**[Data with Baraa SQL Bootcamp](
-https://youtube.com/playlist?list=PLNcg_FV9n7qZY_2eAtUzEUulNjTJREhQe&si=69f1kmj2RFzzDXBn)**  
-Special thanks to Baraa Khatib Salkini for sharing real world knowledge in modern data warehousing practices.
+**[Data with Baraa SQL Bootcamp](https://youtube.com/playlist?list=PLNcg_FV9n7qZY_2eAtUzEUulNjTJREhQe&si=69f1kmj2RFzzDXBn)**
+
+Special thanks to Baraa Khatib Salkini for providing excellent knowledge in modern data warehousing practices and advanced SQL analytics.
 
 ---
 
-*Built with ❤️ for SQL*
+*Built with ❤️ and SQL - A Complete Data Warehouse & Analytics Solution*
